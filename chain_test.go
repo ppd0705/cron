@@ -98,6 +98,10 @@ func (j *countJob) Done() int {
 	return j.done
 }
 
+func (j *countJob) Name() string {
+	return ""
+}
+
 func TestChainDelayIfStillRunning(t *testing.T) {
 
 	t.Run("runs immediately", func(t *testing.T) {

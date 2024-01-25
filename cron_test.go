@@ -63,6 +63,10 @@ func (d DummyJob) Run() {
 	panic("YOLO")
 }
 
+func (d DummyJob) Name() string {
+	return ""
+}
+
 func TestJobPanicRecovery(t *testing.T) {
 	var job DummyJob
 
@@ -369,6 +373,10 @@ type testJob struct {
 
 func (t testJob) Run() {
 	t.wg.Done()
+}
+
+func (t testJob) Name() string {
+	return ""
 }
 
 // Test that adding an invalid job spec returns an error

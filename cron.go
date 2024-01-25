@@ -34,7 +34,10 @@ type ScheduleParser interface {
 // Job is an interface for submitted cron jobs.
 type Job interface {
 	Run()
+	Name() string
 }
+
+const nameKey = "tn"
 
 // Schedule describes a job's duty cycle.
 type Schedule interface {
@@ -134,6 +137,8 @@ func New(opts ...Option) *Cron {
 type FuncJob func()
 
 func (f FuncJob) Run() { f() }
+
+func (f FuncJob) Name() string { return "FuncJob" }
 
 // AddFunc adds a func to the Cron to be run on the given schedule.
 // The spec is parsed using the time zone of this Cron instance as the default.
@@ -243,7 +248,7 @@ func (c *Cron) run() {
 	now := c.now()
 	for _, entry := range c.entries {
 		entry.Next = entry.Schedule.Next(now)
-		c.logger.Info("schedule", "now", now, "entry", entry.ID, "next", entry.Next)
+		c.logger.Info("schedule", "now", now, "entry", entry.ID, nameKey, entry.Job.Name(), "next", entry.Next)
 	}
 
 	for {
@@ -273,7 +278,7 @@ func (c *Cron) run() {
 					c.startJob(e.WrappedJob)
 					e.Prev = e.Next
 					e.Next = e.Schedule.Next(now)
-					c.logger.Info("run", "now", now, "entry", e.ID, "next", e.Next)
+					c.logger.Info("run", "now", now, "entry", e.ID, nameKey, e.Job.Name(), "next", e.Next)
 				}
 
 			case newEntry := <-c.add:
@@ -281,7 +286,7 @@ func (c *Cron) run() {
 				now = c.now()
 				newEntry.Next = newEntry.Schedule.Next(now)
 				c.entries = append(c.entries, newEntry)
-				c.logger.Info("added", "now", now, "entry", newEntry.ID, "next", newEntry.Next)
+				c.logger.Info("added", "now", now, "entry", newEntry.ID, nameKey, newEntry.Job.Name(), "next", newEntry.Next)
 
 			case replyChan := <-c.snapshot:
 				replyChan <- c.entrySnapshot()

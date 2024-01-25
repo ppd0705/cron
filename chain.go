@@ -47,7 +47,7 @@ func Recover(logger Logger) JobWrapper {
 					if !ok {
 						err = fmt.Errorf("%v", r)
 					}
-					logger.Error(err, "panic", "stack", "...\n"+string(buf))
+					logger.Error(err, "panic", nameKey, j.Name(), "stack", "...\n"+string(buf))
 				}
 			}()
 			j.Run()
@@ -85,7 +85,7 @@ func SkipIfStillRunning(logger Logger) JobWrapper {
 				defer func() { ch <- v }()
 				j.Run()
 			default:
-				logger.Info("skip")
+				logger.Info("skip", nameKey, j.Name())
 			}
 		})
 	}
