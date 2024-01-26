@@ -133,6 +133,24 @@ func New(opts ...Option) *Cron {
 	return c
 }
 
+// NameJob is a wrapper with name info
+type NameJob struct {
+	name string
+	fn   func()
+}
+
+func NewNameJob(name string, fn func()) *NameJob {
+	return &NameJob{name, fn}
+}
+
+func (f *NameJob) Run() {
+	f.fn()
+}
+
+func (f *NameJob) Name() string {
+	return f.name
+}
+
 // FuncJob is a wrapper that turns a func() into a cron.Job
 type FuncJob func()
 
